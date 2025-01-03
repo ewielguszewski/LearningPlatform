@@ -1,0 +1,69 @@
+﻿@using LearningPlatform.Models.Course
+@model IEnumerable<Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a href="@Url.Action("Create", "Courses")" class="btn btn-primary">Create New Course</a>
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => course.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => course.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => course.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => course.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => course.Category.Id)
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "Courses", new { id = course.Id })" class="btn btn-info">View</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("Edit", "Courses", new { id = course.Id })" class="btn btn-warning">Edit</a>
+                        <a href="@Url.Action("Delete", "Courses", new { id = course.Id })" class="btn btn-danger">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
