@@ -28,6 +28,9 @@
                 @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.StartDate)
             </th>
             <th>
@@ -50,10 +53,15 @@
                     @Html.DisplayFor(modelItem => course.Price)
                 </td>
                 <td>
+                    <a href="@Url.Action("Profile", "Users", new { id = course.Author.Id })">
+                        @course.Author.FirstName @course.Author.LastName
+                    </a>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => course.StartDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => course.Category.Id)
+                    @Html.DisplayFor(modelItem => course.Category.Name)
                 </td>
                 <td>
                     <a href="@Url.Action("Details", "Courses", new { id = course.Id })" class="btn btn-info">View</a>

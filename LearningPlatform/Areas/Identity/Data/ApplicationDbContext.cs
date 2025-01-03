@@ -36,6 +36,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         .Property(c => c.Price)
         .HasColumnType("decimal(18,2)");
 
+        builder.Entity<Course>()
+        .HasOne(c => c.Author)
+        .WithMany()
+        .HasForeignKey(c => c.AuthorId)
+        .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<Order>()
             .Property(o => o.TotalAmount)
             .HasColumnType("decimal(18,2)");

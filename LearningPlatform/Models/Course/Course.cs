@@ -1,4 +1,5 @@
 ﻿using LearningPlatform.Models.Relations;
+using LearningPlatform.Models.User;
 
 namespace LearningPlatform.Models.Course
 {
@@ -11,6 +12,9 @@ namespace LearningPlatform.Models.Course
         public DateTime StartDate { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        public string AuthorId { get; set; }
+        public ApplicationUser Author { get; set; }
+
         public ICollection<Enrollment> Enrollments { get; set; }
         public ICollection<Lesson> Lessons { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using LearningPlatform.Models.Course;
 using LearningPlatform.Models.User;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningPlatform.Data
 {
@@ -13,11 +14,13 @@ namespace LearningPlatform.Data
             await CreateAdminUser(userManager);
 
             await CreateCategories(context);
+
+            await CreateCourses(context);
         }
 
         private static async Task CreateRoles(RoleManager<IdentityRole> roleManager)
         {
-            var roleNames = new[] { "Admin", "User" };
+            var roleNames = new[] { "Admin", "Instructor", "User" };
 
             foreach (var roleName in roleNames)
             {
@@ -34,19 +37,25 @@ namespace LearningPlatform.Data
         {
             var adminEmail = "admin@admin.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
+            
             if (adminUser == null)
             {
                 adminUser = new ApplicationUser
                 {
                     UserName = adminEmail,
-                    Email = adminEmail
+                    Email = adminEmail,
+                    FirstName = "Admin",
+                    LastName = "Adminov"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin123!");
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to create admin user.");
                 }
             }
         }
@@ -63,6 +72,69 @@ namespace LearningPlatform.Data
             };
 
                 context.Categories.AddRange(categories);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task CreateCourses(ApplicationDbContext context)
+        {
+            if (!context.Courses.Any())
+            {
+                var category1 = context.Categories.FirstOrDefault(c => c.Name == "Programming languages");
+                var category2 = context.Categories.FirstOrDefault(c => c.Name == "Databases");
+
+                var instructor = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@admin.com");
+
+                var course1 = new Course
+                {
+                    Title = "C# Basics",
+                    Description = "Learn the basics of C# programming.",
+                    Price = 500,
+                    StartDate = DateTime.Now,
+                    Category = category1,
+                    Author = instructor
+                };
+
+                var course2 = new Course
+                {
+                    Title = "Sql Basics",
+                    Description = "Learn the basics of Sql.",
+                    Price = 300,
+                    StartDate = DateTime.Now,
+                    Category = category2,
+                    Author = instructor
+                };
+
+                context.Courses.AddRange(course1, course2);
+                await context.SaveChangesAsync();
+
+                await CreateLessons(course1, context);
+                await CreateLessons(course2, context);
+            }
+        }
+
+        private static async Task CreateLessons(Course course, ApplicationDbContext context)
+        {
+            if (course.Lessons == null)
+            {
+                course.Lessons = new List<Lesson>();
+            }
+
+            if (!course.Lessons.Any())
+            {
+                var lesson1 = new Lesson
+                {
+                    Title = "Introduction to C#",
+                    CourseId = course.Id
+                };
+
+                var lesson2 = new Lesson
+                {
+                    Title = "Data Types in C#",
+                    CourseId = course.Id
+                };
+
+                context.Lessons.AddRange(lesson1, lesson2);
                 await context.SaveChangesAsync();
             }
         }

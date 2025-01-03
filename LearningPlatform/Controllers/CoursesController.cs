@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LearningPlatform.Dtos.Courses;
+using System.Security.Claims;
 
 namespace LearningPlatform.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Instructor")]
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,6 +26,7 @@ namespace LearningPlatform.Controllers
         {
             var courses = await _context.Courses
                 .Include(c => c.Category)
+                .Include(c => c.Author)
                 .ToListAsync();
 
             return View(courses);
@@ -41,6 +43,9 @@ namespace LearningPlatform.Controllers
 
             var course = await _context.Courses
                 .Include(c => c.Category)
+                .Include(c => c.Author)
+                .Include(c => c.Lessons)
+                .ThenInclude(l => l.LessonContents)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (course == null)
@@ -102,6 +107,13 @@ namespace LearningPlatform.Controllers
                 return NotFound();
             }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (course.AuthorId != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
             var courseDto = new EditCourseDto
             {
                 Id = course.Id,
@@ -134,6 +146,12 @@ namespace LearningPlatform.Controllers
                 if (course == null)
                 {
                     return NotFound();
+                }
+
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (course.AuthorId != currentUserId && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
                 }
 
                 course.Title = courseDto.Title;
@@ -179,6 +197,12 @@ namespace LearningPlatform.Controllers
                 return NotFound();
             }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (course.AuthorId != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
             return View(course);
         }
 
@@ -193,6 +217,12 @@ namespace LearningPlatform.Controllers
             if (course == null)
             {
                 return NotFound();
+            }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (course.AuthorId != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
             }
 
             _context.Courses.Remove(course);
