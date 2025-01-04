@@ -61,7 +61,8 @@
                     @Html.DisplayFor(modelItem => course.StartDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => course.Category.Name)
+                    <a href="@Url.Action("Index", "Courses", new { categoryId = course.CategoryId })">@course.Category.Name</a>
+
                 </td>
                 <td>
                     <a href="@Url.Action("Details", "Courses", new { id = course.Id })" class="btn btn-info">View</a>

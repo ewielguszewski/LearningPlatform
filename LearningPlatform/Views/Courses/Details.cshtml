@@ -1,6 +1,6 @@
 ﻿@using System.Security.Claims;
-
-@model LearningPlatform.Models.Course.Course
+@using LearningPlatform.Models.Course;
+@model Course
 
 @{
     ViewData["Title"] = "Details";
@@ -39,8 +39,10 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Category)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.Id)
+        <dd class="col-sm-10">
+            <a href="@Url.Action("Index", "Courses", new { categoryId = Model.Category.Id })">
+                @Model.Category.Name
+            </a>
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Author)

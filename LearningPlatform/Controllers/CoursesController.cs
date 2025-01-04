@@ -60,8 +60,8 @@ namespace LearningPlatform.Controllers
                 .Include(c => c.Category)
                 .Include(c => c.Author)
                 .Include(c => c.Lessons)
-                .ThenInclude(l => l.LessonContents)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .ThenInclude(c => c.LessonContents)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
             {
