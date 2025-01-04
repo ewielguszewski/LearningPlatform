@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using LearningPlatform.Models.User;
 using Microsoft.Extensions.Options;
+using LearningPlatform.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -18,10 +19,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
 
 
 
-builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddScoped<AddCategoriesToViewDataFilter>();
+
+builder.Services.AddControllersWithViews(options =>
+    {
+    options.Filters.AddService<AddCategoriesToViewDataFilter>();
+});
 
 builder.Services.AddRazorPages();
-
 
 //builder.Services.AddRazorPages(options =>
 //{

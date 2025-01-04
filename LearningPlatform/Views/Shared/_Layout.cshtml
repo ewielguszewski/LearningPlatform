@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using LearningPlatform.Models.Course;
+@{
+    var categories = Context.Items["Categories"] as List<Category>;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -19,6 +24,27 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item dropdown">
+                            @if (categories != null && categories.Any())
+                            {
+                                
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Categories
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                    @foreach (var category in categories)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("Index", "Courses", new { categoryId = category.Id })">
+                                                @category.Name
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            }
+                        </li>
                         <li class="nav-item">
                             <form asp-controller="Courses" asp-action="Index" method="get" class="form-inline">
                                 <input type="text" name="searchQuery" class="form-control mr-sm-2" placeholder="Search courses" value="@ViewData["SearchQuery"]">
@@ -31,7 +57,7 @@
                         <partial name="_LoginPartial" />
                     </ul>
                 </div>
-                
+
             </div>
         </nav>
     </header>
