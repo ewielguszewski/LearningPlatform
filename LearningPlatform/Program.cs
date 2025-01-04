@@ -84,7 +84,7 @@ await SeedData.Initialize(services, userManager, roleManager, context);
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Courses}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 

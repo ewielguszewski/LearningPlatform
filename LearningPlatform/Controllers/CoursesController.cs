@@ -22,12 +22,19 @@ namespace LearningPlatform.Controllers
 
         // GET: CoursesController
         [AllowAnonymous]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(string searchQuery)
         {
-            var courses = await _context.Courses
-                .Include(c => c.Category)
-                .Include(c => c.Author)
-                .ToListAsync();
+            IQueryable<Course> coursesQuery = _context.Courses
+        .Include(c => c.Category)
+        .Include(c => c.Author);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                coursesQuery = coursesQuery.Where(c => c.Title.Contains(searchQuery));
+            }
+
+            ViewData["SearchQuery"] = searchQuery;
+            var courses = await coursesQuery.ToListAsync();
 
             return View(courses);
         }
