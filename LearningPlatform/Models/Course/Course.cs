@@ -8,6 +8,7 @@ namespace LearningPlatform.Models.Course
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string ThumbnailUrl { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
         public int CategoryId { get; set; }
@@ -17,5 +18,6 @@ namespace LearningPlatform.Models.Course
 
         public ICollection<Enrollment> Enrollments { get; set; }
         public ICollection<Lesson> Lessons { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }

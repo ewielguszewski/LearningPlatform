@@ -45,7 +45,8 @@ namespace LearningPlatform.Data
                     UserName = adminEmail,
                     Email = adminEmail,
                     FirstName = "Admin",
-                    LastName = "Adminov"
+                    LastName = "Adminov",
+                    Nickname = "Admin123"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin123!");

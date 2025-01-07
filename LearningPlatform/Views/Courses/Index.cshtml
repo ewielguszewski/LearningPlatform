@@ -53,7 +53,7 @@
                     @Html.DisplayFor(modelItem => course.Price)
                 </td>
                 <td>
-                    <a href="@Url.Action("Profile", "Users", new { id = course.Author.Id })">
+                    <a href="@Url.Action("UserProfile", "Users", new { nickname = course.Author.Nickname })">
                         @course.Author.FirstName @course.Author.LastName
                     </a>
                 </td>
