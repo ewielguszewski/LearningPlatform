@@ -110,7 +110,6 @@ namespace LearningPlatform.Data
                 await context.SaveChangesAsync();
 
                 await CreateLessons(course1, context);
-                await CreateLessons(course2, context);
             }
         }
 

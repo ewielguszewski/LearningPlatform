@@ -11,7 +11,16 @@
 @if (Model.IsInstructor)
 {
     <p>Total Students: @Model.TotalStudents</p>
-    <p>Average Rating: @Model.AverageRating</p>
+    <p>
+        @if (Model.AverageRating > 0)
+        {
+            <span>Average rating: @Model.AverageRating:F2</span>
+        }
+        else
+        {
+            <span>No ratings available.</span>
+        }
+    </p>
 
     <h2>Courses Created</h2>
     @foreach (var course in Model.CreatedCourses)
@@ -21,7 +30,10 @@
             <p>@course.Description</p>
             <p>Price: @course.Price</p>
             <p>Students: @course.TotalStudents</p>
-            <p>Rating: @course.AverageRating</p>
+            @if (course.AverageRating > 0)
+            {
+                <p>Average rating: @course.AverageRating</p>
+            }
         </div>
     }
 }

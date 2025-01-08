@@ -17,9 +17,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
                             .AddEntityFrameworkStores<ApplicationDbContext>()
                             .AddDefaultTokenProviders();
 
+builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<AddCategoriesToViewDataFilter>();
 
@@ -73,6 +80,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSession();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -91,7 +99,13 @@ await SeedData.Initialize(services, userManager, roleManager, context);
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Courses}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "courses",
+    pattern: "courses/{categoryName?}",
+    defaults: new { controller = "Courses", action = "Index" }
+);
 
 app.MapRazorPages();
 

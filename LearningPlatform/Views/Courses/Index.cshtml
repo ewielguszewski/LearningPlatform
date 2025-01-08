@@ -8,7 +8,7 @@
 <h1>@ViewData["Title"]</h1>
 
 
-@if (User.IsInRole("Admin"))
+@if (User.IsInRole("Admin") || User.IsInRole("Instructor"))
 {
     <p>
         <a href="@Url.Action("Create", "Courses")" class="btn btn-primary">Create New Course</a>
@@ -61,7 +61,7 @@
                     @Html.DisplayFor(modelItem => course.StartDate)
                 </td>
                 <td>
-                    <a href="@Url.Action("Index", "Courses", new { categoryId = course.CategoryId })">@course.Category.Name</a>
+                    <a href="/courses/@course.Category.Name">@course.Category.Name</a>
 
                 </td>
                 <td>

@@ -16,7 +16,7 @@ namespace LearningPlatform.Models.Course
         public string AuthorId { get; set; }
         public ApplicationUser Author { get; set; }
 
-        public ICollection<Enrollment> Enrollments { get; set; }
+        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
         public ICollection<Lesson> Lessons { get; set; }
         public ICollection<Review> Reviews { get; set; }
     }

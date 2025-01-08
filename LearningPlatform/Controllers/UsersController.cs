@@ -72,15 +72,14 @@ namespace LearningPlatform.Controllers
                 }).ToList(),
                 TotalStudents = createdCourses.Sum(c => c.Enrollments.Count),
                 TotalReviews = createdCourses.Sum(c => c.Reviews.Count),
-                MemberSince = user.RegisteredDate
-            };
-            int totalStudents = createdCourses.Sum(c => c.Enrollments.Count);
-            double averageRating = createdCourses
-                .Where(c => c.Reviews.Any())
-                .Select(c => c.Reviews.Average(r => r.Rating))
-                .DefaultIfEmpty(0) 
-                .Average();
+                MemberSince = user.RegisteredDate,
+                AverageRating = createdCourses
+                    .Where(c => c.Reviews.Any())
+                    .Select(c => c.Reviews.Average(r => r.Rating))
+                    .DefaultIfEmpty(0)
+                    .Average()
 
+            };
             return View(model);
         }
 

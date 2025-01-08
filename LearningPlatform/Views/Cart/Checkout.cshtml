@@ -1,0 +1,23 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<h2>Checkout</h2>
+
+<p>Choose your payment method:</p>
+<form method="post" asp-action="RealizeOrder">
+    <div>
+        <label>
+            <input type="radio" name="paymentMethod" value="card" /> Pay by Card
+        </label>
+    </div>
+    <div>
+        <label>
+            <input type="radio" name="paymentMethod" value="free" checked /> Get Free (no payment)
+        </label>
+    </div>
+    <button type="submit">Complete Order</button>
+</form>

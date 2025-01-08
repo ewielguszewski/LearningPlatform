@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LearningPlatform.Dtos.Courses;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LearningPlatform.Controllers
 {
@@ -22,7 +23,7 @@ namespace LearningPlatform.Controllers
 
         // GET: CoursesController
         [AllowAnonymous]
-        public async Task<ActionResult> Index(string searchQuery, int? categoryId)
+        public async Task<ActionResult> Index(string searchQuery, string categoryName)
         {
             IQueryable<Course> coursesQuery = _context.Courses
                 .Include(c => c.Category)
@@ -33,15 +34,15 @@ namespace LearningPlatform.Controllers
                 coursesQuery = coursesQuery.Where(c => c.Title.Contains(searchQuery));
             }
 
-            if (categoryId.HasValue)
+            if (!string.IsNullOrEmpty(categoryName))
             {
-                coursesQuery = coursesQuery.Where(c => c.Category.Id == categoryId);
+                coursesQuery = coursesQuery.Where(c => c.Category.Name == categoryName);
             }
 
             var courses = await coursesQuery.ToListAsync();
 
             ViewData["SearchQuery"] = searchQuery;
-            ViewData["SelectedCategoryId"] = categoryId;
+            ViewData["SelectedCategoryName"] = categoryName;
             ViewData["Categories"] = await _context.Categories.ToListAsync();
 
             return View(courses);
@@ -59,6 +60,7 @@ namespace LearningPlatform.Controllers
             var course = await _context.Courses
                 .Include(c => c.Category)
                 .Include(c => c.Author)
+                .Include(c => c.Enrollments)
                 .Include(c => c.Lessons)
                 .ThenInclude(c => c.LessonContents)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -205,6 +207,7 @@ namespace LearningPlatform.Controllers
             }
 
             var course = await _context.Courses
+                .Include(c => c.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (course == null)
