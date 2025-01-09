@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using LearningPlatform.Models.User;
 using Microsoft.Extensions.Options;
 using LearningPlatform.Filters;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -28,21 +29,22 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
+var cultureInfo = new CultureInfo("en-US");
+cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
+cultureInfo.NumberFormat.CurrencyGroupSeparator = "";
+cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
 builder.Services.AddScoped<AddCategoriesToViewDataFilter>();
 
 builder.Services.AddControllersWithViews(options =>
     {
-    options.Filters.AddService<AddCategoriesToViewDataFilter>();
-});
+        options.Filters.AddService<AddCategoriesToViewDataFilter>();
+    });
 
 builder.Services.AddRazorPages();
-
-//builder.Services.AddRazorPages(options =>
-//{
-//    options.Conventions.AddAreaPageRoute("Identity", "/Account/Login", "/Account/Login");
-//    options.Conventions.AddAreaPageRoute("Identity", "/Account/Register", "/Account/Register");
-//});
-
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -103,7 +105,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "courses",
-    pattern: "courses/{categoryName?}",
+    pattern: "courses/{action}/{id?}",
     defaults: new { controller = "Courses", action = "Index" }
 );
 

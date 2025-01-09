@@ -14,7 +14,7 @@
     <p>
         @if (Model.AverageRating > 0)
         {
-            <span>Average rating: @Model.AverageRating:F2</span>
+            <span>Average rating: @Model.AverageRating.ToString("F2")</span>
         }
         else
         {

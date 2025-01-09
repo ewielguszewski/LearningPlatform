@@ -1,4 +1,6 @@
-﻿@model LearningPlatform.Models.Course.Course
+﻿@using System.Globalization
+
+@model LearningPlatform.Dtos.Courses.CreateCourseDto
 
 @{
     ViewData["Title"] = "Create";
@@ -27,13 +29,8 @@
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
                 <input asp-for="Price" class="form-control" />
+                @* <input asp-for="Price" class="form-control" type="number" step="0.01" value="@Model.Price.ToString("F2", CultureInfo.InvariantCulture)" /> *@
                 <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
 
             <div class="form-group">

@@ -37,6 +37,9 @@ namespace LearningPlatform.Data
         {
             var adminEmail = "admin@admin.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+            var userEmail = "user@user.com";
+            var user = await userManager.FindByEmailAsync(userEmail);
             
             if (adminUser == null)
             {
@@ -59,6 +62,29 @@ namespace LearningPlatform.Data
                     throw new InvalidOperationException("Failed to create admin user.");
                 }
             }
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = userEmail,
+                    Email = userEmail,
+                    FirstName = "User",
+                    LastName = "Userov",
+                    Nickname = "User123"
+                };
+
+                var result = await userManager.CreateAsync(user, "User123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "User");
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to create user.");
+                }
+            }
+
         }
 
         private static async Task CreateCategories(ApplicationDbContext context)
@@ -90,8 +116,7 @@ namespace LearningPlatform.Data
                 {
                     Title = "C# Basics",
                     Description = "Learn the basics of C# programming.",
-                    Price = 500,
-                    StartDate = DateTime.Now,
+                    Price = 500.00m,
                     Category = category1,
                     Author = instructor
                 };
@@ -100,8 +125,7 @@ namespace LearningPlatform.Data
                 {
                     Title = "Sql Basics",
                     Description = "Learn the basics of Sql.",
-                    Price = 300,
-                    StartDate = DateTime.Now,
+                    Price = 300.00m,
                     Category = category2,
                     Author = instructor
                 };

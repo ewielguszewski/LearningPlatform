@@ -61,6 +61,7 @@ namespace LearningPlatform.Controllers
                 .Include(c => c.Category)
                 .Include(c => c.Author)
                 .Include(c => c.Enrollments)
+                .Include(c => c.Reviews)
                 .Include(c => c.Lessons)
                 .ThenInclude(c => c.LessonContents)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -69,6 +70,21 @@ namespace LearningPlatform.Controllers
             {
                 return NotFound();
             }
+
+            var averageRating = course.Reviews.Any() ? course.Reviews.Average(r => r.Rating) : 0;
+            ViewData["AverageRating"] = averageRating;
+            var numberOfStudents = course.Reviews.Count;
+            ViewData["NumberOfStudents"] = numberOfStudents;
+            var numberOfReviews = course.Reviews.Count();
+            ViewData["NumberOfReviews"] = numberOfReviews;
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var isEnrolled = course.Enrollments.Any(e => e.UserId == userId);
+            ViewBag.IsEnrolled = isEnrolled;
+
+            var userRating = course.Reviews.FirstOrDefault(r => r.UserId == userId);
+            ViewBag.UserRating = userRating;
 
             course.Lessons = course.Lessons ?? new List<Lesson>();
 
@@ -89,12 +105,13 @@ namespace LearningPlatform.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 var course = new Course
-                {
+                {   AuthorId = userId,
                     Title = courseDto.Title,
                     Description = courseDto.Description,
                     Price = courseDto.Price,
-                    StartDate = courseDto.StartDate,
                     CategoryId = courseDto.CategoryId
                 };
                 _context.Add(course);
@@ -133,7 +150,6 @@ namespace LearningPlatform.Controllers
 
             var courseDto = new EditCourseDto
             {
-                Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
                 Price = course.Price,
@@ -158,7 +174,7 @@ namespace LearningPlatform.Controllers
             if (ModelState.IsValid)
             {
                 var course = await _context.Courses
-                    .FindAsync(id);
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (course == null)
                 {
@@ -176,21 +192,9 @@ namespace LearningPlatform.Controllers
                 course.Price = courseDto.Price;
                 course.CategoryId = courseDto.CategoryId;
 
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (_context.Courses.All(e => e.Id != courseDto.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Courses.Update(course);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -248,5 +252,41 @@ namespace LearningPlatform.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> Rate(int courseId, int rating, string comment)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            comment = string.IsNullOrEmpty(comment) ? "" : comment;
+
+            var existingReview = await _context.Reviews
+                .FirstOrDefaultAsync(r => r.CourseId == courseId && r.UserId == userId);
+
+            if (existingReview != null)
+            {
+                existingReview.Rating = rating;
+                existingReview.Comment = comment;
+                _context.Reviews.Update(existingReview);
+            }
+            else
+            {
+                var review = new Review
+                {
+                    CourseId = courseId,
+                    UserId = userId,
+                    Rating = rating,
+                    Comment = comment,
+                    CreatedAt = DateTime.Now
+                };
+                _context.Reviews.Add(review);
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
     }
 }

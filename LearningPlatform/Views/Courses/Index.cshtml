@@ -19,6 +19,9 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.ThumbnailUrl)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
@@ -43,6 +46,9 @@
         @foreach (var course in Model)
         {
             <tr>
+                <td>
+                    <img src="@Url.Content(course.ThumbnailUrl ?? "/images/default-thumbnail.jpg")" alt="Course Thumbnail" width="150" />
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => course.Title)
                 </td>
