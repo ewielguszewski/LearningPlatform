@@ -23,8 +23,12 @@ namespace LearningPlatform.Controllers
 
         // GET: CoursesController
         [AllowAnonymous]
+        [HttpGet("courses/{categoryName?}")]
         public async Task<ActionResult> Index(string searchQuery, string categoryName)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["UserId"] = userId;
+
             IQueryable<Course> coursesQuery = _context.Courses
                 .Include(c => c.Category)
                 .Include(c => c.Author);
@@ -47,6 +51,7 @@ namespace LearningPlatform.Controllers
 
             return View(courses);
         }
+
 
         // GET: CoursesController/Details/5
         [AllowAnonymous]

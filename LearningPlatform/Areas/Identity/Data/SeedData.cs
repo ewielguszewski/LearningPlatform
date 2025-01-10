@@ -38,6 +38,9 @@ namespace LearningPlatform.Data
             var adminEmail = "admin@admin.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
+            var instructorEmail = "instructor@instructor.com";
+            var instructorUser = await userManager.FindByEmailAsync(instructorEmail);
+
             var userEmail = "user@user.com";
             var user = await userManager.FindByEmailAsync(userEmail);
             
@@ -60,6 +63,28 @@ namespace LearningPlatform.Data
                 else
                 {
                     throw new InvalidOperationException("Failed to create admin user.");
+                }
+            }
+
+            if (instructorUser == null)
+            {
+                instructorUser = new ApplicationUser
+                {
+                    UserName = instructorEmail,
+                    Email = instructorEmail,
+                    FirstName = "Instructor",
+                    LastName = "Instructorov",
+                    Nickname = "Instructor123"
+                };
+
+                var result = await userManager.CreateAsync(instructorUser, "Instructor123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(instructorUser, "Instructor");
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to create instructor user.");
                 }
             }
 

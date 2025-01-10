@@ -1,8 +1,8 @@
 ﻿@using LearningPlatform.Models.Course
 @model IEnumerable<Course>
-
 @{
     ViewData["Title"] = "Courses";
+    string? userId = ViewData["UserId"] as string;
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -66,7 +66,7 @@
                 </td>
                 <td>
                     <a href="@Url.Action("Details", "Courses", new { id = course.Id })" class="btn btn-info">View</a>
-                    @if (User.IsInRole("Admin"))
+                    @if (User.IsInRole("Admin") || (User.IsInRole("Instructor") && course.AuthorId == userId))
                     {
                         <a href="@Url.Action("Edit", "Courses", new { id = course.Id })" class="btn btn-warning">Edit</a>
                         <a href="@Url.Action("Delete", "Courses", new { id = course.Id })" class="btn btn-danger">Delete</a>

@@ -2,7 +2,6 @@
 using LearningPlatform.Models.Course;
 using LearningPlatform.Models.Order;
 using LearningPlatform.Models.Relations;
-using LearningPlatform.Models.Activity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +29,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Review> Reviews { get; set; }
-    public DbSet<UserActivity> UserActivities { get; set; }
     public DbSet<UserLessonProgress> UserLessonProgresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -75,22 +73,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(c => c.Reviews)
             .HasForeignKey(r => r.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<UserActivity>()
-       .HasOne(ua => ua.User)
-       .WithMany()
-       .HasForeignKey(ua => ua.UserId)
-       .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<UserActivity>()
-            .HasOne(ua => ua.Course)
-            .WithMany()
-            .HasForeignKey(ua => ua.CourseId);
-
-        builder.Entity<UserActivity>()
-            .HasOne(ua => ua.Lesson)
-            .WithMany()
-            .HasForeignKey(ua => ua.LessonId);
 
         builder.ApplyConfiguration(new ApplicationUserConfiguration());
     }

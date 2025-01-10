@@ -160,6 +160,25 @@ namespace LearningPlatform.Controllers
                 return Forbid();
             }
 
+            var visited = await _context.UserLessonProgresses
+                .FirstOrDefaultAsync(ulp => ulp.UserId == userId && ulp.LessonId == lesson.Id);
+
+            if (visited == null)
+            {
+                visited = new UserLessonProgress
+                {
+                    UserId = userId,
+                    LessonId = lesson.Id,
+                    VisitedAt = DateTime.Now
+                };
+                _context.UserLessonProgresses.Add(visited);
+            }
+            else
+            {
+                visited.VisitedAt = DateTime.Now;
+                _context.UserLessonProgresses.Update(visited);
+            }
+
             var progress = await _context.Progresses
         .FirstOrDefaultAsync(p => p.UserId == userId && p.CourseId == lesson.CourseId);
 
@@ -183,13 +202,24 @@ namespace LearningPlatform.Controllers
             }
             await _context.SaveChangesAsync();
 
-            var visited = new UserLessonProgress
-            {
-                UserId = userId,
-                LessonId = lesson.Id,
-                VisitedAt = DateTime.Now
-            };
-            _context.UserLessonProgresses.Add(visited);
+
+            var totalLessons = await _context.Lessons
+                .CountAsync(l => l.CourseId == lesson.CourseId);
+
+            var visitedLessons = await _context.UserLessonProgresses
+                .Where(ulp => ulp.UserId == userId &&
+                               ulp.Lesson.CourseId == lesson.CourseId)
+                .Select(ulp => ulp.LessonId)
+                .Distinct()
+                .CountAsync();
+
+
+            progress.LastAccessed = DateTime.Now;
+            progress.RecentLessonId = lesson.Id;
+            progress.CompletionPercentage = (double)visitedLessons / totalLessons * 100;
+
+            _context.Progresses.Update(progress);
+            await _context.SaveChangesAsync();
 
             var previousLesson = await _context.Lessons
                 .Where(l => l.CourseId == lesson.CourseId && l.Id < lesson.Id)
