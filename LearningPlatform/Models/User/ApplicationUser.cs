@@ -1,7 +1,7 @@
 ﻿using LearningPlatform.Models.Relations;
+using LearningPlatform.Models.Course;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 namespace LearningPlatform.Models.User
 {
     [Index(nameof(Nickname), IsUnique = true)]
@@ -14,6 +14,7 @@ namespace LearningPlatform.Models.User
         public string ProfilePictureUrl { get; set; } = string.Empty;
         public DateTime RegisteredDate { get; set; }
         public ICollection<Enrollment> Enrollments { get; set; }
+        public ICollection<Progress> Progresses { get; set; }
 
         public ApplicationUser()
         {

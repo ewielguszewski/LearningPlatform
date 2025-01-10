@@ -1,6 +1,7 @@
 ﻿using LearningPlatform.Data;
 using LearningPlatform.Dtos.Lessons;
 using LearningPlatform.Models.Course;
+using LearningPlatform.Models.Relations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
@@ -146,23 +147,54 @@ namespace LearningPlatform.Controllers
                 return NotFound();
             }
 
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var isEnrolled = await _context.Enrollments
-                .AnyAsync(e => e.UserId == currentUserId && e.CourseId == lesson.CourseId);
+                .AnyAsync(e => e.UserId == userId && e.CourseId == lesson.CourseId);
 
             var isAdmin = User.IsInRole("Admin");
             var course = lesson.Course;
-            var isAuthor = course != null && course.AuthorId == currentUserId;
+            var isAuthor = course != null && course.AuthorId == userId;
 
             if (!isEnrolled && !isAdmin && !isAuthor)
             {
                 return Forbid();
             }
 
+            var progress = await _context.Progresses
+        .FirstOrDefaultAsync(p => p.UserId == userId && p.CourseId == lesson.CourseId);
+
+            if (progress == null)
+            {
+                progress = new Progress
+                {
+                    UserId = userId,
+                    CourseId = lesson.CourseId,
+                    LastAccessed = DateTime.Now,
+                    RecentLessonId = lesson.Id,
+                    CompletionPercentage = 0
+                };
+                _context.Progresses.Add(progress);
+            }
+            else
+            {
+                progress.RecentLessonId = lesson.Id;
+                progress.LastAccessed = DateTime.Now;
+                _context.Progresses.Update(progress);
+            }
+            await _context.SaveChangesAsync();
+
+            var visited = new UserLessonProgress
+            {
+                UserId = userId,
+                LessonId = lesson.Id,
+                VisitedAt = DateTime.Now
+            };
+            _context.UserLessonProgresses.Add(visited);
+
             var previousLesson = await _context.Lessons
-           .Where(l => l.CourseId == lesson.CourseId && l.Id < lesson.Id)
-           .OrderByDescending(l => l.Id)
-           .FirstOrDefaultAsync();
+                .Where(l => l.CourseId == lesson.CourseId && l.Id < lesson.Id)
+                .OrderByDescending(l => l.Id)
+                .FirstOrDefaultAsync();
 
             var nextLesson = await _context.Lessons
                 .Where(l => l.CourseId == lesson.CourseId && l.Id > lesson.Id)

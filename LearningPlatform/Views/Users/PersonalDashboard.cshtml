@@ -3,7 +3,8 @@
 *@
 @{
 }
-
+@using LearningPlatform.ViewModel
+@model PersonalDashboardViewModel
 
 <h2>Welcome, @Model.User.FirstName!</h2>
 
@@ -15,22 +16,80 @@
 </nav>
 
 <h3>Recently Viewed:</h3>
-<ul>
-    @foreach (var course in Model.RecentlyViewed)
-    {
-        <li>
-            <a href="@Url.Action("Details", "Courses", new { id = course.Id })">@course.Title</a>
-        </li>
-    }
-
-</ul>
+@if (Model.RecentlyViewed.Any())
+{
+    <ul>
+        @foreach (var course in Model.RecentlyViewed)
+        {
+            <li>
+                <a href="@Url.Action("Details", "Courses", new { id = course.Id })">@course.Title</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No recently viewed courses.</p>
+}
 
 <h3>Pick up where you left:</h3>
-<ul>
-    @foreach (var course in Model.InProgressCourses)
-    {
-        <li>
-            <a href="@Url.Action("Details", "Courses", new { id = course.Id })">@course.Title</a>
-        </li>
-    }
-</ul>
+@if (Model.InProgressCourses.Any())
+{
+    <ul>
+        @foreach (var course in Model.InProgressCourses)
+        {
+            var userProgress = Model.User.Progresses
+                .FirstOrDefault(p => p.CourseId == course.Id);
+
+            <li>
+                <strong>Course:</strong> @course.Title
+
+                <span>
+                    (Progress: @userProgress?.CompletionPercentage %)
+                </span>
+
+                <ul>
+                    @foreach (var lesson in course.Lessons)
+                    {
+                        <li>@lesson.Title</li>
+                    }
+                </ul>
+
+                @if (userProgress?.RecentLessonId != null)
+                {
+                    <p><strong>Last visited:</strong> @userProgress.LastAccessed</p>
+                    <p>
+                        <a href="@Url.Action("Learn", "Lessons", new { id = userProgress.RecentLessonId })">
+                            Continue learning
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <p>You haven't visited any lesson yet.</p>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>You have no in-progress courses.</p>
+}
+
+<h3>Completed courses:</h3>
+@if (Model.CompletedCourses.Any())
+{
+    <ul>
+        @foreach (var course in Model.CompletedCourses)
+        {
+            <li>
+                <a href="@Url.Action("Details", "Courses", new { id = course.Id })">@course.Title</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>You haven't completed any courses yet.</p>
+}

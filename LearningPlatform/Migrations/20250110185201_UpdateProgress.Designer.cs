@@ -4,6 +4,7 @@ using LearningPlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250110185201_UpdateProgress")]
+    partial class UpdateProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,6 +233,9 @@ namespace LearningPlatform.Migrations
                     b.Property<DateTime>("LastAccessed")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
                     b.Property<int>("RecentLessonId")
                         .HasColumnType("int");
 
@@ -241,7 +247,7 @@ namespace LearningPlatform.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("RecentLessonId");
+                    b.HasIndex("LessonId");
 
                     b.HasIndex("UserId");
 
@@ -368,33 +374,6 @@ namespace LearningPlatform.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Enrollments");
-                });
-
-            modelBuilder.Entity("LearningPlatform.Models.Relations.UserLessonProgress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("LessonId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("VisitedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LessonId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserLessonProgresses");
                 });
 
             modelBuilder.Entity("LearningPlatform.Models.User.ApplicationUser", b =>
@@ -729,12 +708,12 @@ namespace LearningPlatform.Migrations
 
                     b.HasOne("LearningPlatform.Models.Course.Lesson", "Lesson")
                         .WithMany()
-                        .HasForeignKey("RecentLessonId")
+                        .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LearningPlatform.Models.User.ApplicationUser", "User")
-                        .WithMany("Progresses")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -810,25 +789,6 @@ namespace LearningPlatform.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LearningPlatform.Models.Relations.UserLessonProgress", b =>
-                {
-                    b.HasOne("LearningPlatform.Models.Course.Lesson", "Lesson")
-                        .WithMany()
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LearningPlatform.Models.User.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Lesson");
 
                     b.Navigation("User");
                 });
@@ -916,8 +876,6 @@ namespace LearningPlatform.Migrations
             modelBuilder.Entity("LearningPlatform.Models.User.ApplicationUser", b =>
                 {
                     b.Navigation("Enrollments");
-
-                    b.Navigation("Progresses");
                 });
 #pragma warning restore 612, 618
         }

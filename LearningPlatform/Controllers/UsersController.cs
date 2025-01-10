@@ -89,26 +89,40 @@ namespace LearningPlatform.Controllers
         public async Task<IActionResult> PersonalDashboard()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
 
-            var recentlyViewed = _context.UserActivities
-                .Where(ua => ua.UserId == user.Id)
-                .OrderByDescending(ua => ua.LastAccessed)
+            var userId = user.Id;
+
+            var progresses = await _context.Progresses
+                .Include(p => p.Course)
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            var recentlyViewed = progresses
+                .OrderByDescending(p => p.LastAccessed)
+                .Select(p => p.Course)
+                .Distinct()
                 .Take(5)
-                .Select(ua => ua.Course)
                 .ToList();
 
-            var inProgressCourses = await _context.Enrollments
-                .Where(e => e.UserId == user.Id && !e.IsCompleted)
-                .Include(e => e.Course)
-                .ThenInclude(c => c.Reviews)
-                .Select(e => e.Course)
-                .ToListAsync();
+            var inProgressCourses = progresses
+                .Where(p => p.CompletionPercentage < 100)
+                .Select(p => p.Course)
+                .Distinct()
+                .ToList();
+
+            var completedCourses = progresses
+                .Where(p => p.CompletionPercentage >= 100)
+                .Select(p => p.Course)
+                .Distinct()
+                .ToList();
 
             var model = new PersonalDashboardViewModel
             {
                 User = user,
                 RecentlyViewed = recentlyViewed,
-                InProgressCourses = inProgressCourses
+                InProgressCourses = inProgressCourses,
+                CompletedCourses = completedCourses
             };
 
             return View(model);

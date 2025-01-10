@@ -4,6 +4,7 @@ using LearningPlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250110194439_AddUserLessonProgress")]
+    partial class AddUserLessonProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -734,7 +737,7 @@ namespace LearningPlatform.Migrations
                         .IsRequired();
 
                     b.HasOne("LearningPlatform.Models.User.ApplicationUser", "User")
-                        .WithMany("Progresses")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -916,8 +919,6 @@ namespace LearningPlatform.Migrations
             modelBuilder.Entity("LearningPlatform.Models.User.ApplicationUser", b =>
                 {
                     b.Navigation("Enrollments");
-
-                    b.Navigation("Progresses");
                 });
 #pragma warning restore 612, 618
         }

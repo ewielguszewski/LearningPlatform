@@ -31,6 +31,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
+    public DbSet<UserLessonProgress> UserLessonProgresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -56,6 +57,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<CartItem>()
             .Property(o => o.Price)
             .HasColumnType("decimal(18,2)");
+
+        builder.Entity<Progress>()
+        .HasOne(p => p.Course)
+        .WithMany()
+        .HasForeignKey(p => p.CourseId)
+        .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<Review>()
         .HasOne(r => r.User)

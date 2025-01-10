@@ -8,5 +8,6 @@ namespace LearningPlatform.ViewModel
         public ApplicationUser User { get; set; }
         public List<Course> RecentlyViewed { get; set; }
         public List<Course> InProgressCourses { get; set; }
+        public List<Course> CompletedCourses { get; set; }
     }
 }
