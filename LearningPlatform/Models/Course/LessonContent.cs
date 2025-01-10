@@ -9,10 +9,11 @@ namespace LearningPlatform.Models.Course
         public Lesson Lesson { get; set; }
         public ContentType ContentType { get; set; } = ContentType.Text;
     }
-}
-public enum ContentType
-{
-    Text,
-    Video,
-    Image
+
+    public enum ContentType
+    {
+        Text,
+        Video,
+        Image
+    }
 }

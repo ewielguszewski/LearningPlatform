@@ -83,6 +83,7 @@
         }
     </dl>
 </div>
+<hr />
 <div>
     @if (User.Identity.IsAuthenticated)
     {
@@ -100,10 +101,6 @@
         }
         else
         {
-            <h3>
-
-            <a href="@Url.Action("LessonContent", "Lesson", new { courseId = Model.Id })">Learn</a>
-            </h3>
             @if (ViewBag.UserRating != null)
             {
                 <p>Your current rating: @ViewBag.UserRating.Rating</p>
@@ -131,6 +128,7 @@
     }
 </div>
 
+<hr />
 <h3>Lessons</h3>
 <ul>
     @if (Model.Lessons != null && Model.Lessons.Any())
@@ -139,7 +137,7 @@
         {
             <li>
                 <strong>@lesson.Title</strong>
-                @if (lesson.LessonContents != null && lesson.LessonContents.Any())
+                @* @if (lesson.LessonContents != null && lesson.LessonContents.Any())
                 {
                     foreach (var lessonContent in lesson.LessonContents)
                     {
@@ -149,6 +147,10 @@
                 else
                 {
                 <p>No content available for this lesson.</p>
+                } *@
+                @if (User.IsInRole("Admin") || (User.Identity.IsAuthenticated && Model.Enrollments.Any(e => e.CourseId == Model.Id && e.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))))
+                {
+                    <a href="@Url.Action("Learn", "Lessons", new { id = lesson.Id })" class="btn btn-primary">Learn</a>
                 }
                 @if (User.IsInRole("Admin") || User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.AuthorId)
                 {

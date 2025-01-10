@@ -1,8 +1,10 @@
 ﻿using LearningPlatform.Data;
+using LearningPlatform.Dtos.Lessons;
 using LearningPlatform.Models.Course;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using System.Security.Claims;
 
 namespace LearningPlatform.Controllers
 {
@@ -18,34 +20,35 @@ namespace LearningPlatform.Controllers
         // GET: Lessons/Create
         public IActionResult Create(int courseId)
         {
-            var course = _context.Courses.Include(c => c.Lessons).FirstOrDefault(c => c.Id == courseId);
-
-            if (course == null)
+            var model = new CreateLessonDto
             {
-                return NotFound();
-            }
-
-            var lesson = new Lesson
-            {
-                CourseId = course.Id,
-                LessonContents = new List<LessonContent>()
+                CourseId = courseId
             };
 
-            return View(lesson);
+            return View(model);
         }
 
         // POST: Lessons/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Lesson lesson)
+        public async Task<IActionResult> Create(CreateLessonDto model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(lesson);
+                var lesson = new Lesson
+                {
+                    Title = model.Title,
+                    CourseId = model.CourseId,
+                    Duration = model.Duration
+                };
+
+                _context.Lessons.Add(lesson);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), "Courses", new { id = lesson.CourseId });
+
+                return RedirectToAction("Details", "Courses", new { id = model.CourseId });
             }
-            return View(lesson);
+
+            return View(model);
         }
 
         // GET: Lessons/Edit/5
@@ -57,48 +60,47 @@ namespace LearningPlatform.Controllers
             }
 
             var lesson = await _context.Lessons
-                .Include(l => l.Course)
                 .FirstOrDefaultAsync(l => l.Id == id);
+
 
             if (lesson == null)
             {
                 return NotFound();
             }
 
-            return View(lesson);
+            var model = new EditLessonDto
+            {
+                Id = lesson.Id,
+                Title = lesson.Title,
+                Duration = lesson.Duration,
+                CourseId = lesson.CourseId
+            };
+
+            return View(model);
         }
 
         // POST: Lessons/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Lesson lesson)
+        public async Task<IActionResult> Edit(EditLessonDto model)
         {
-            if (id != lesson.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                var lesson = await _context.Lessons.FindAsync(model.Id);
+
+                if (lesson == null)
                 {
-                    _context.Update(lesson);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Lessons.Any(l => l.Id == lesson.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Details), "Courses", new { id = lesson.CourseId });
+
+                lesson.Title = model.Title;
+                lesson.Duration = model.Duration;
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", "Courses", new { id = model.CourseId });
             }
-            return View(lesson);
+            return View(model);
         }
 
         // GET: Lessons/Delete/5
@@ -131,6 +133,46 @@ namespace LearningPlatform.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Details", "Courses", new { id = lesson.CourseId });
         }
-    }
 
+        public async Task<IActionResult> Learn(int id)
+        {
+            var lesson = await _context.Lessons
+                .Include(l => l.LessonContents)
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isEnrolled = await _context.Enrollments
+                .AnyAsync(e => e.UserId == currentUserId && e.CourseId == lesson.CourseId);
+
+            var isAdmin = User.IsInRole("Admin");
+            var course = lesson.Course;
+            var isAuthor = course != null && course.AuthorId == currentUserId;
+
+            if (!isEnrolled && !isAdmin && !isAuthor)
+            {
+                return Forbid();
+            }
+
+            var previousLesson = await _context.Lessons
+           .Where(l => l.CourseId == lesson.CourseId && l.Id < lesson.Id)
+           .OrderByDescending(l => l.Id)
+           .FirstOrDefaultAsync();
+
+            var nextLesson = await _context.Lessons
+                .Where(l => l.CourseId == lesson.CourseId && l.Id > lesson.Id)
+                .OrderBy(l => l.Id)
+                .FirstOrDefaultAsync();
+
+            ViewBag.PreviousLessonId = previousLesson?.Id;
+            ViewBag.NextLessonId = nextLesson?.Id;
+
+            return View(lesson);
+        }
+    }
 }

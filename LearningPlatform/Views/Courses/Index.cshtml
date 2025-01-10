@@ -19,7 +19,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ThumbnailUrl)
+                
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
@@ -32,9 +32,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Category)
@@ -62,9 +59,6 @@
                     <a href="@Url.Action("UserProfile", "Users", new { nickname = course.Author.Nickname })">
                         @course.Author.FirstName @course.Author.LastName
                     </a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => course.StartDate)
                 </td>
                 <td>
                     <a href="/courses/@course.Category.Name">@course.Category.Name</a>
