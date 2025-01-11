@@ -18,7 +18,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
                             .AddEntityFrameworkStores<ApplicationDbContext>()
                             .AddDefaultTokenProviders();
 
-builder.Services.AddDistributedMemoryCache();
+//builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
@@ -103,11 +103,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-//app.MapControllerRoute(
-//    name: "courses",
-//    pattern: "courses/{action}/{id?}",
-//    defaults: new { controller = "Courses", action = "Index" }
-//);
+app.MapControllerRoute(
+    name: "courses",
+    pattern: "courses/{action}/{categoryName?}",
+    defaults: new { controller = "Courses", action = "Index" }
+);
 
 app.MapRazorPages();
 
